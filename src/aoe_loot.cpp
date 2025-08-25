@@ -57,7 +57,8 @@ bool AoeLootManager::CanPacketReceive(WorldSession* session, WorldPacket& packet
 
                 // >>>>> Aoe loot start. <<<<< //
 
-                AoeLootCommandScript::DebugMessage(player, "AOE Looting started.");
+                AoeLootCommandScript::DebugMessage(player, "开始寻找范围掉落......");
+                //AoeLootCommandScript::DebugMessage(player, "AOE Looting started.");
                 ChatHandler handler(player->GetSession());
                 handler.ParseCommands(".aoeloot startaoeloot");
             }
@@ -195,14 +196,16 @@ bool AoeLootCommandScript::HandleAoeLootOnCommand(ChatHandler* handler, Optional
     if (AoeLootCommandScript::hasPlayerAoeLootEnabled(playerGuid) && 
         AoeLootCommandScript::GetPlayerAoeLootEnabled(playerGuid))
     {
-        handler->PSendSysMessage("AOE Loot is already enabled for your character.");
+        handler->PSendSysMessage("已准备好为您的角色启用范围拾取。");
+        //handler->PSendSysMessage("AOE Loot is already enabled for your character.");
         return true;
     }
     if (AoeLootCommandScript::hasPlayerAoeLootEnabled(playerGuid) && 
         !AoeLootCommandScript::GetPlayerAoeLootEnabled(playerGuid))
     {
         AoeLootCommandScript::SetPlayerAoeLootEnabled(playerGuid, true);
-        handler->PSendSysMessage("AOE Loot enabled for your character. Type: '.aoeloot off' to turn AoE Looting off.");
+        handler->PSendSysMessage("已为您的角色启用范围拾取，您可以输入命令'.aoeloot off'禁用范围拾取。");
+        //handler->PSendSysMessage("AOE Loot enabled for your character. Type: '.aoeloot off' to turn AoE Looting off.");
         return true;
     }
    
@@ -220,12 +223,15 @@ bool AoeLootCommandScript::HandleAoeLootOffCommand(ChatHandler* handler, Optiona
         AoeLootCommandScript::GetPlayerAoeLootEnabled(playerGuid))
     {
         AoeLootCommandScript::SetPlayerAoeLootEnabled(playerGuid, false);
-        handler->PSendSysMessage("AOE Loot disabled for your character. Type: '.aoeloot on' to turn AoE Looting on.");
-        DebugMessage(player, "AOE Loot disabled for your character.");
+        handler->PSendSysMessage("已为您的角色禁用范围拾取，您可以输入命令'.aoeloot on'开启范围拾取。");
+        //handler->PSendSysMessage("AOE Loot disabled for your character. Type: '.aoeloot on' to turn AoE Looting on.");
+        DebugMessage(player, "已为您的角色禁用范围拾取。");
+        //DebugMessage(player, "AOE Loot disabled for your character.");
     }
     else
     {
-        handler->PSendSysMessage("AOE Loot is already disabled for your character.");
+        handler->PSendSysMessage("已准备好为您的角色禁用范围拾取。");
+        //handler->PSendSysMessage("AOE Loot is already disabled for your character.");
     }
     return true;
 }
@@ -240,8 +246,10 @@ bool AoeLootCommandScript::HandleAoeLootToggleCommand(ChatHandler* handler, Opti
     if (!AoeLootCommandScript::hasPlayerAoeLootEnabled(playerGuid))
     {
         AoeLootCommandScript::SetPlayerAoeLootEnabled(playerGuid, true);
-        handler->PSendSysMessage("AOE Loot enabled for your character. Type: '.aoeloot off' to turn AoE Looting off.");
-        DebugMessage(player, "AOE Loot enabled for your character.");
+        handler->PSendSysMessage("已为您的角色启用范围拾取，您可以输入命令'.aoeloot off'禁用范围拾取。");
+        //handler->PSendSysMessage("AOE Loot enabled for your character. Type: '.aoeloot off' to turn AoE Looting off.");
+        DebugMessage(player, "已为您的角色启用范围拾取。");
+        //DebugMessage(player, "AOE Loot enabled for your character.");
     }
     else if (!AoeLootCommandScript::GetPlayerAoeLootEnabled(playerGuid))
     {
@@ -368,8 +376,10 @@ void AoeLootCommandScript::DebugMessage(Player* player, const std::string& messa
     {
         
         // >>>>> This will send debug messages to the player. <<<<< //
+        // >>>>>          这里将向玩家发送 debug 信息。          <<<<< //
 
-        ChatHandler(player->GetSession()).PSendSysMessage("AOE Loot: {}", message);
+        ChatHandler(player->GetSession()).PSendSysMessage("范围拾取: {}", message);
+        //ChatHandler(player->GetSession()).PSendSysMessage("AOE Loot: {}", message);
     }
 }
 
@@ -406,17 +416,20 @@ bool AoeLootCommandScript::IsValidLootTarget(Player* player, Creature* creature)
     uint64 playerGuid = player->GetGUID().GetRawValue();
     if (!AoeLootCommandScript::hasPlayerAoeLootEnabled(playerGuid))
     {
-        DebugMessage(player, "Player AOE loot setting not found.");
+        DebugMessage(player, "范围拾取配置丢失。");
+        //DebugMessage(player, "Player AOE loot setting not found.");
         return false;
     }
 
     if (!AoeLootCommandScript::GetPlayerAoeLootEnabled(playerGuid))
     {
-        DebugMessage(player, "Player AOE loot is disabled.");
+        DebugMessage(player, "范围拾取已禁用");
+        //DebugMessage(player, "Player AOE loot is disabled.");
         return false;
     }
     
-    DebugMessage(player, fmt::format("Valid loot target found: {}", creature->GetName()));
+    DebugMessage(player, fmt::format("找到生物： {} 。", creature->GetName()));
+    //DebugMessage(player, fmt::format("Valid loot target found: {}", creature->GetName()));
     return true;
 }
 
@@ -432,14 +445,16 @@ void AoeLootCommandScript::ProcessQuestItems(Player* player, ObjectGuid lguid, L
     {
         uint8 lootSlot = loot->items.size() + i;
         ProcessLootSlot(player, lguid, lootSlot);
-        DebugMessage(player, fmt::format("Looted quest item in slot {}", lootSlot));
+        DebugMessage(player, fmt::format("在 {} 拾取了任务物品。", lootSlot));
+        //DebugMessage(player, fmt::format("Looted quest item in slot {}", lootSlot));
     }
     
     const QuestItemMap& ffaItems = loot->GetPlayerFFAItems();
     for (uint8 i = 0; i < ffaItems.size(); ++i)
     {
         ProcessLootSlot(player, lguid, i);
-        DebugMessage(player, fmt::format("Looted FFA item in slot {}", i));
+        DebugMessage(player, fmt::format("在 {} 拾取了FFA物品。", i));
+        //DebugMessage(player, fmt::format("Looted FFA item in slot {}", i));
     }
 }
 
@@ -450,7 +465,8 @@ std::pair<Loot*, bool> AoeLootCommandScript::GetLootObject(Player* player, Objec
         
         // >>>>> This protects against looting Game Objects and Structures <<<<< //
 
-        DebugMessage(player, "Skipping GameObject - not supported for AOE loot");
+        DebugMessage(player, "跳过不支持范围拾取的 GameObject。");
+        //DebugMessage(player, "Skipping GameObject - not supported for AOE loot");
         return {nullptr, false};
     }
     else if (lguid.IsItem())
@@ -458,7 +474,8 @@ std::pair<Loot*, bool> AoeLootCommandScript::GetLootObject(Player* player, Objec
         Item* pItem = player->GetItemByGuid(lguid);
         if (!pItem)
         {
-            DebugMessage(player, fmt::format("Failed to find item {}", lguid.ToString()));
+            DebugMessage(player, fmt::format("未能找到物品 {}", lguid.ToString()));
+            //DebugMessage(player, fmt::format("Failed to find item {}", lguid.ToString()));
             return {nullptr, false};
         }
         return {&pItem->loot, true};
@@ -468,7 +485,8 @@ std::pair<Loot*, bool> AoeLootCommandScript::GetLootObject(Player* player, Objec
         Corpse* bones = ObjectAccessor::GetCorpse(*player, lguid);
         if (!bones)
         {
-            DebugMessage(player, fmt::format("Failed to find corpse {}", lguid.ToString()));
+            DebugMessage(player, fmt::format("未能找到尸体 {}", lguid.ToString()));
+            //DebugMessage(player, fmt::format("Failed to find corpse {}", lguid.ToString()));
             return {nullptr, false};
         }
         return {&bones->loot, true};
@@ -478,7 +496,8 @@ std::pair<Loot*, bool> AoeLootCommandScript::GetLootObject(Player* player, Objec
         Creature* creature = player->GetMap()->GetCreature(lguid);
         if (!creature)
         {
-            DebugMessage(player, fmt::format("Failed to find creature {}", lguid.ToString()));
+            DebugMessage(player, fmt::format("未能找到生物 {}", lguid.ToString()));
+            //(player, fmt::format("Failed to find creature {}", lguid.ToString()));
             return {nullptr, false};
         }
         
@@ -504,7 +523,8 @@ bool AoeLootCommandScript::HandleStartAoeLootCommand(ChatHandler* handler, Optio
     uint32 CorpseThreshold = sConfigMgr->GetOption<uint32>("AOELoot.CorpseThreshold", 2);
     if (validCorpses.size() < CorpseThreshold)
     {
-        DebugMessage(player, "Not enough corpses for AOE loot. Defaulting to normal looting.");
+        DebugMessage(player, "没有足够的尸体触发范围拾取，使用默认拾取。");
+        //DebugMessage(player, "Not enough corpses for AOE loot. Defaulting to normal looting.");
         return true;
     }
     
@@ -521,7 +541,8 @@ std::vector<Creature*> AoeLootCommandScript::GetValidCorpses(Player* player, flo
     std::list<Creature*> nearbyCorpses;
     player->GetDeadCreatureListInGrid(nearbyCorpses, range);
     
-    DebugMessage(player, fmt::format("Found {} nearby corpses within range {}", nearbyCorpses.size(), range));
+    DebugMessage(player, fmt::format("在 {} 码内找到了 {} 个有效尸体。", range, nearbyCorpses.size()));
+    //DebugMessage(player, fmt::format("Found {} nearby corpses within range {}", nearbyCorpses.size(), range));
     
     std::vector<Creature*> validCorpses;
     for (auto* creature : nearbyCorpses)
@@ -530,7 +551,8 @@ std::vector<Creature*> AoeLootCommandScript::GetValidCorpses(Player* player, flo
             validCorpses.push_back(creature);
     }
 
-    DebugMessage(player, fmt::format("Found {} valid corpses", validCorpses.size()));
+    DebugMessage(player, fmt::format("找到 {} 个有效尸体。", validCorpses.size()));
+    //DebugMessage(player, fmt::format("Found {} valid corpses", validCorpses.size()));
     return validCorpses;
 }
 
@@ -587,7 +609,8 @@ bool AoeLootCommandScript::ProcessLootSlot(Player* player, ObjectGuid lguid, uin
 
     if (!player || !lguid || lguid.IsEmpty())
     {
-        DebugMessage(player, fmt::format("Failed to loot slot {} of {}: invalid loot object", lootSlot, lguid.ToString()));
+        DebugMessage(player, fmt::format("拾取失败 {} of {}: 无效的掉落项。", lootSlot, lguid.ToString()));
+        //DebugMessage(player, fmt::format("Failed to loot slot {} of {}: invalid loot object", lootSlot, lguid.ToString()));
         return false;
     }
 
@@ -595,7 +618,8 @@ bool AoeLootCommandScript::ProcessLootSlot(Player* player, ObjectGuid lguid, uin
 
     if (loot->items.empty() || lootSlot >= loot->items.size())
     {
-        DebugMessage(player, fmt::format("Failed to loot slot {} of {}: invalid slot or no items", lootSlot, lguid.ToString()));
+        DebugMessage(player, fmt::format("拾取失败 {} of {}: 无效位或者没有物品。", lootSlot, lguid.ToString()));
+        //DebugMessage(player, fmt::format("Failed to loot slot {} of {}: invalid slot or no items", lootSlot, lguid.ToString()));
         return false;
     }
 
@@ -607,7 +631,8 @@ bool AoeLootCommandScript::ProcessLootSlot(Player* player, ObjectGuid lguid, uin
 
     if (lootItem.is_blocked || lootItem.is_looted)
     {
-        DebugMessage(player, fmt::format("Failed to loot slot {} of {}: item is blocked", lootSlot, lguid.ToString()));
+        DebugMessage(player, fmt::format("拾取失败 {} of {}: 物品已锁定。", lootSlot, lguid.ToString()));
+        //DebugMessage(player, fmt::format("Failed to loot slot {} of {}: item is blocked", lootSlot, lguid.ToString()));
         return false;
     }
 
@@ -632,7 +657,8 @@ bool AoeLootCommandScript::ProcessLootSlot(Player* player, ObjectGuid lguid, uin
             if (creature)
             {
                 group->NeedBeforeGreed(loot, creature);
-                DebugMessage(player, fmt::format("Started group roll for above-threshold item in slot {} of {}", lootSlot, lguid.ToString()));
+                DebugMessage(player, fmt::format("已开始对阈值以上的项目进行分组在位 {} / {}", lootSlot, lguid.ToString()));
+                //DebugMessage(player, fmt::format("Started group roll for above-threshold item in slot {} of {}", lootSlot, lguid.ToString()));
                 return true;
             }
         }
@@ -658,10 +684,12 @@ bool AoeLootCommandScript::ProcessLootSlot(Player* player, ObjectGuid lguid, uin
     LootItem* storedItem = player->StoreLootItem(lootSlot, loot, msg);
     if (!storedItem)
     {
-        DebugMessage(player, fmt::format("Failed to loot slot {} of {}: inventory error {}", lootSlot, lguid.ToString(), static_cast<uint32>(msg)));
+        DebugMessage(player, fmt::format("失败于掉落位 {} 来自 {}: 存货错误 {}", lootSlot, lguid.ToString(), static_cast<uint32>(msg)));
+        //DebugMessage(player, fmt::format("Failed to loot slot {} of {}: inventory error {}", lootSlot, lguid.ToString(), static_cast<uint32>(msg)));
         return false;
     }
-    DebugMessage(player, fmt::format("Looted item from slot {} of {}", lootSlot, lguid.ToString()));
+    DebugMessage(player, fmt::format("在 {} 拾取了掉落于 {} 的物品。", lootSlot, lguid.ToString()));
+    //DebugMessage(player, fmt::format("Looted item from slot {} of {}", lootSlot, lguid.ToString()));
     return true;
 }
 
@@ -705,7 +733,8 @@ bool AoeLootCommandScript::ProcessLootMoney(Player* player, Creature* creature)
             {
                 member->ModifyMoney(goldPerPlayer);
                 member->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, goldPerPlayer);
-                DebugMessage(member, fmt::format("Received {} copper from AOE loot", goldPerPlayer));
+                DebugMessage(member, fmt::format("发现 {} 铜币来自范围拾取", goldPerPlayer));
+                //DebugMessage(member, fmt::format("Received {} copper from AOE loot", goldPerPlayer));
             }
         }
         else
@@ -744,7 +773,8 @@ void AoeLootCommandScript::ProcessLootRelease(ObjectGuid lguid, Player* player, 
         }
     }
     
-    DebugMessage(player, fmt::format("Released loot for {}", lguid.ToString()));
+    DebugMessage(player, fmt::format("发现掉落来自于 {}", lguid.ToString()));
+    //DebugMessage(player, fmt::format("Released loot for {}", lguid.ToString()));
 }
 
 void AoeLootPlayer::OnPlayerLogin(Player* player)
@@ -752,7 +782,8 @@ void AoeLootPlayer::OnPlayerLogin(Player* player)
     if (sConfigMgr->GetOption<bool>("AOELoot.Enable", true) && 
         sConfigMgr->GetOption<bool>("AOELoot.Message", true))
     {
-        ChatHandler(player->GetSession()).PSendSysMessage("AOE looting has been enabled for your character. Commands: .aoeloot debug | .aoeloot off | .aoeloot on");
+        //ChatHandler(player->GetSession()).PSendSysMessage("AOE looting has been enabled for your character. Commands: .aoeloot debug | .aoeloot off | .aoeloot on");
+        ChatHandler(player->GetSession()).PSendSysMessage("已为您的角色开启范围拾取，可用命令：.aoeloot debug | .aoeloot off | .aoeloot on 。");
     }
 }
 
